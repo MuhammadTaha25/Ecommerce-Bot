@@ -5,7 +5,7 @@ import streamlit as st
 load_dotenv()
 
 OPENAI_API_KEY =st.secrets['OPENAI_API_KEY']
-GEMINI_API_KEY = st.secrets('GEMINI_API_KEY')  # Use
+GEMINI_API_KEY = st.secrets['GEMINI_API_KEY'] # Use
 def initialize_LLM(openai_api_key=None, gemini_api_key=None):
     """
     Initialize a Language Learning Model (LLM) using OpenAI or Gemini based on the availability of API keys.
@@ -46,4 +46,5 @@ def initialize_LLM(openai_api_key=None, gemini_api_key=None):
     else:
         raise ValueError("No API keys provided. Please set the OpenAI or Gemini API key.")
     
+
     return LLM
