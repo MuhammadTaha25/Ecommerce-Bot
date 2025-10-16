@@ -4,7 +4,7 @@ from langchain.schema import StrOutputParser
 from operator import itemgetter
 
 OPENAI_API_KEY =st.secrets['OPENAI_API_KEY']
-google_api_key = st.secrets('GEMINI_API_KEY') 
+google_api_key = st.secrets('google_api_key') 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
@@ -37,3 +37,4 @@ Answer in detail, and if the answer is not contained within the context, say 'I 
 
 
     return _chain
+
