@@ -4,7 +4,7 @@ from langchain.schema import StrOutputParser
 from operator import itemgetter
 
 OPENAI_API_KEY =st.secrets['OPENAI_API_KEY']
-GEMINI_API_KEY = st.secrets('GEMINI_API_KEY') 
+google_api_key = st.secrets('GEMINI_API_KEY') 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
@@ -34,5 +34,6 @@ Answer in detail, and if the answer is not contained within the context, say 'I 
         "context": itemgetter("question") | retriever | format_docs,
     }
     _chain = setup | _prompt | LLM | StrOutputParser()
+
 
     return _chain
