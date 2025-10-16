@@ -15,7 +15,7 @@ st.set_page_config(page_title="Talk2Musk AI | Voice of Elon", layout="wide")
 
 # ——— Secrets & clients ———
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-GOOGLE_API_KEY = st.secrets["google_api_key"]
+GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # ——— LLM & Pinecone setup ———
@@ -130,4 +130,5 @@ if st.button("Clear Conversation"):
             os.remove(msg["audio"])
     st.session_state.conversation = []
     st.session_state.turn = 0
+
     st.rerun()
