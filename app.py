@@ -4,131 +4,115 @@ from pathlib import Path
 from streamlit_mic_recorder import mic_recorder
 import io
 import os
-import time
 
 from pineconedb import manage_pinecone_store
 from creating_chain import create_expert_chain
 from llModel import initialize_LLM
 
-# ——— Page config ———
-st.set_page_config(page_title="Talk2Musk AI | Voice of Elon", layout="wide")
+# --- Page Config ---
+st.set_page_config(page_title="🛍️ ShopEase AI | Your Smart Shopping Assistant", layout="wide")
 
-# ——— Secrets & clients ———
+# --- Secrets & Clients ---
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 GOOGLE_API_KEY = st.secrets["GEMINI_API_KEY"]
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-# ——— LLM & Pinecone setup ———
+# --- LLM & Pinecone setup ---
 llm = initialize_LLM(OPENAI_API_KEY, GOOGLE_API_KEY)
 retriever = manage_pinecone_store()
 chain = create_expert_chain(llm, retriever)
 
-# ——— Session state for conversation history ———
+# --- Session State ---
 if "conversation" not in st.session_state:
     st.session_state.conversation = []
 if "turn" not in st.session_state:
     st.session_state.turn = 0
 
-# ——— UI controls ———
-st.title("🎙️ Talk2Musk AI")
-# --- Custom fix for tab title ---
+# --- Header ---
+st.title("🛍️ ShopEase Voice Assistant")
+st.markdown("### Welcome! Ask anything about our products, offers, or order updates.")
+st.caption("💬 Speak or type your question below — your personal shopping assistant is here to help!")
 
-st.write("Record your question and hear Elon-level voice responses!")
-
-# Create recording button
-st.write("### Record your question:")
+# --- Voice Recorder ---
+st.write("### 🎙️ Ask with your voice:")
 audio_bytes = mic_recorder(
-    start_prompt="🎤 Start Recording",
-    stop_prompt="⏹️ Stop Recording",
+    start_prompt="🎤 Start Talking",
+    stop_prompt="⏹️ Stop Talking",
     key=f"recorder_{st.session_state.turn}",
     format="wav"
 )
 
-# Process audio if recorded
-if audio_bytes:
-    with st.spinner("Processing your voice..."):
-        # Save user audio to file
-        user_audio_path = Path(__file__).parent / f"user_input_{st.session_state.turn}.wav"
-        with open(user_audio_path, "wb") as f:
-            f.write(audio_bytes['bytes'])
-        
-        # Transcribe audio using Whisper
-        audio_file = io.BytesIO(audio_bytes['bytes'])
-        audio_file.name = "recording.wav"
-        
-        transcript = client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio_file,
-            language="en"
-        ).text
-        
-        if transcript:
-            # Add to conversation history
-            st.session_state.conversation.append({
-                "role": "user",
-                "audio": str(user_audio_path),
-                "text": transcript
-            })
-            
-            # Generate AI response
-            with st.spinner("Generating Your Reponse"):
-                result = chain.stream({"question": transcript})
-                ai_text = "".join(result) if hasattr(result, "__iter__") else str(result)
-            
-            # Generate TTS
-            bot_audio_path = Path(__file__).parent / f"bot_response_{st.session_state.turn}.mp3"
-            with client.audio.speech.with_streaming_response.create(
-                model="gpt-4o-mini-tts",
-                voice="echo",
-                input=ai_text,
-            ) as resp:
-                resp.stream_to_file(bot_audio_path)
-            
-            # Add bot response to history
-            st.session_state.conversation.append({
-                "role": "bot",
-                "audio": str(bot_audio_path),
-                "text": ai_text
-            })
-            
-            st.session_state.turn += 1
-            st.rerun()
+# --- Text Input Alternative ---
+user_text = st.text_input("Or type your question here 👇", key="typed_query")
 
-# ——— Display conversation history ———
-st.markdown("## Conversation History")
+# --- Process Audio or Text ---
+if audio_bytes or user_text:
+    with st.spinner("Processing your query..."):
+        if audio_bytes:
+            user_audio_path = Path(__file__).parent / f"user_input_{st.session_state.turn}.wav"
+            with open(user_audio_path, "wb") as f:
+                f.write(audio_bytes['bytes'])
+
+            # Transcribe using Whisper
+            audio_file = io.BytesIO(audio_bytes['bytes'])
+            audio_file.name = "recording.wav"
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio_file,
+                language="en"
+            ).text
+        else:
+            transcript = user_text
+            user_audio_path = None
+
+        # Store user input
+        st.session_state.conversation.append({
+            "role": "user",
+            "audio": str(user_audio_path) if user_audio_path else None,
+            "text": transcript
+        })
+
+        # --- Generate AI Response ---
+        with st.spinner("Fetching the best answer for you..."):
+            result = chain.stream({"question": transcript})
+            ai_text = "".join(result) if hasattr(result, "__iter__") else str(result)
+
+        # --- TTS (Voice Reply) ---
+        bot_audio_path = Path(__file__).parent / f"bot_response_{st.session_state.turn}.mp3"
+        with client.audio.speech.with_streaming_response.create(
+            model="gpt-4o-mini-tts",
+            voice="alloy",
+            input=ai_text,
+        ) as resp:
+            resp.stream_to_file(bot_audio_path)
+
+        # Save bot response
+        st.session_state.conversation.append({
+            "role": "bot",
+            "audio": str(bot_audio_path),
+            "text": ai_text
+        })
+
+        st.session_state.turn += 1
+        st.rerun()
+
+# --- Chat History ---
+st.markdown("## 💬 Chat History")
 if st.session_state.conversation:
-    for idx, message in enumerate(st.session_state.conversation):
-        if message["role"] == "bot":
-            # Left column for bot responses
+    for msg in st.session_state.conversation:
+        if msg["role"] == "bot":
             with st.container():
                 col1, col2 = st.columns([2, 2])
                 with col1:
-                    st.markdown("**Dresico:**")
-                    st.audio(message["audio"], format="audio/mp3")
-                with col2:
-                    with st.expander("See transcript"):
-                        st.write(message["text"])
+                    st.markdown("**🛒 ShopEase:**")
+                    if msg["audio"]:
+                        st.audio(msg["audio"], format="audio/mp3")
+                    with st.expander("🗒️ See Reply Text"):
+                        st.write(msg["text"])
                 st.markdown("---")
         else:
-            # Right column for user questions
             with st.container():
-                col1, col2 = st.columns([3, 3])
+                col1, col2 = st.columns([2, 2])
                 with col2:
-                    st.markdown("**You:**")
-                    st.audio(message["audio"], format="audio/wav")
-                with col1:
-                    with st.expander("See transcript"):
-                        st.write(message["text"])
-                st.markdown("---")
-else:
-    st.write("No conversation yet. Record your first question above!")
-
-# Clear conversation button
-if st.button("Clear Conversation"):
-    for msg in st.session_state.conversation:
-        if os.path.exists(msg["audio"]):
-            os.remove(msg["audio"])
-    st.session_state.conversation = []
-    st.session_state.turn = 0
-
-    st.rerun()
+                    st.markdown("**👤 You:**")
+                    if msg["audio"]:
