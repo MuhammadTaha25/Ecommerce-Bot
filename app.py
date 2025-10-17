@@ -116,3 +116,23 @@ if st.session_state.conversation:
                 with col2:
                     st.markdown("**👤 You:**")
                     if msg["audio"]:
+                        st.audio(msg["audio"], format="audio/wav")
+                    with st.expander("🗒️ See Your Question"):
+                        st.write(msg["text"])
+                st.markdown("---")
+else:
+    st.info("No chats yet — try asking about a product or offer!")
+
+# --- Clear Button ---
+if st.button("🧹 Clear Chat History"):
+    for msg in st.session_state.conversation:
+        if msg["audio"] and os.path.exists(msg["audio"]):
+            os.remove(msg["audio"])
+    st.session_state.conversation = []
+    st.session_state.turn = 0
+    st.rerun()
+
+# --- Footer ---
+st.markdown("<br><center>🛍️ Powered by ShopEase AI — Your 24/7 Shopping Partner</center>", unsafe_allow_html=True)
+
+
