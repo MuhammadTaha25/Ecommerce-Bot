@@ -11,7 +11,7 @@ from creating_chain import create_expert_chain
 from llModel import initialize_LLM
 
 # ——— Page config ———
-st.set_page_config(page_title="🛍️ ShopEase AI | Your Smart Shopping Assistant", layout="wide")
+st.set_page_config(page_title="🛍️ ShopEase AI | Your Shopping Assistant", layout="wide")
 
 # ——— Secrets & clients ———
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
@@ -32,10 +32,9 @@ if "turn" not in st.session_state:
 # ——— UI controls ———
 st.title("🛍️ ShopEase Voice Assistant")
 st.markdown("### Welcome! Ask anything about our products, offers, or order updates.")
-st.caption("💬 Speak your query - get a voice reply.")
+st.write("💬 Speak your query - get a voice reply.")
 
 # Create recording button
-st.write("### Record your question:")
 audio_bytes = mic_recorder(
     start_prompt="🎤 Start Recording",
     stop_prompt="⏹️ Stop Recording",
@@ -131,6 +130,7 @@ if st.button("Clear Conversation"):
     st.session_state.turn = 0
 
     st.rerun()   
+
 
 
 
