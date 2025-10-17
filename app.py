@@ -32,7 +32,8 @@ if "turn" not in st.session_state:
 # ——— UI controls ———
 st.title("🛍️ ShopEase Voice Assistant")
 st.markdown("### Welcome! Ask anything about our products, offers, or order updates.")
-st.write("💬 Speak your query - get a voice reply.")
+
+st.write("####💬 Speak your query - get a voice reply.")
 
 # Create recording button
 audio_bytes = mic_recorder(
@@ -93,7 +94,7 @@ if audio_bytes:
             st.rerun()
 
 # ——— Display conversation history ———
-st.markdown("## Conversation History")
+st.markdown("### Conversation History")
 if st.session_state.conversation:
     for idx, message in enumerate(st.session_state.conversation):
         if message["role"] == "bot":
@@ -119,7 +120,7 @@ if st.session_state.conversation:
                         st.write(message["text"])
                 st.markdown("---")
 else:
-    st.write("No conversation yet. Record your first question above!")
+    st.write("#####No conversation yet. Record your first question above!")
 
 # Clear conversation button
 if st.button("Clear Conversation"):
@@ -130,6 +131,7 @@ if st.button("Clear Conversation"):
     st.session_state.turn = 0
 
     st.rerun()   
+
 
 
 
