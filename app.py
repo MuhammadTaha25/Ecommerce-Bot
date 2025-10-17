@@ -30,10 +30,9 @@ if "turn" not in st.session_state:
     st.session_state.turn = 0
 
 # ——— UI controls ———
-st.title("🎙️ Talk2Musk AI")
-# --- Custom fix for tab title ---
-
-st.write("Record your question and hear Elon-level voice responses!")
+st.title("🛍️ ShopEase Voice Assistant")
+st.markdown("### Welcome! Ask anything about our products, offers, or order updates.")
+st.caption("💬 st.caption("Speak your query — get a voice reply.")
 
 # Create recording button
 st.write("### Record your question:")
@@ -132,6 +131,7 @@ if st.button("Clear Conversation"):
     st.session_state.turn = 0
 
     st.rerun()   
+
 
 
 
