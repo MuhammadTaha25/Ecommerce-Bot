@@ -33,7 +33,7 @@ if "turn" not in st.session_state:
 st.title("🛍️ ShopEase Voice Assistant")
 st.markdown("### Welcome! Ask anything about our products, offers, or order updates.")
 
-st.write("####💬 Speak your query - get a voice reply.")
+st.subheader("💬 Speak your query - get a voice reply.")
 
 # Create recording button
 audio_bytes = mic_recorder(
@@ -131,6 +131,7 @@ if st.button("Clear Conversation"):
     st.session_state.turn = 0
 
     st.rerun()   
+
 
 
 
