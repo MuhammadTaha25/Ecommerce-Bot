@@ -1,6 +1,6 @@
 from langchain_core.prompts import ChatPromptTemplate
 import streamlit as st
-from langchain.schema import StrOutputParser
+from langchain_core.output_parsers import StrOutputParser
 from operator import itemgetter
 
 OPENAI_API_KEY =st.secrets['OPENAI_API_KEY']
@@ -37,6 +37,7 @@ Answer in detail, and if the answer is not contained within the context, say 'I 
 
 
     return _chain
+
 
 
 
